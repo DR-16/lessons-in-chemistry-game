@@ -340,7 +340,7 @@ hr.title-divider {
   background: rgba(140, 8, 8, 0);
   pointer-events: none;
   z-index: 902;
-  transition: background 2.4s ease, box-shadow 2.4s ease;
+  transition: background 0.7s ease, box-shadow 0.7s ease;
   box-shadow: inset 0 0 0px rgba(255,0,0,0);
 }
 #red-veil.on {
@@ -1392,10 +1392,10 @@ const SCENE_FX = {
 function triggerEffect(id) {
   const fx = SCENE_FX[id];
   if (!fx) return;
-  if (fx === 'papers')  setTimeout(effectPapers, 300);
-  if (fx === 'red-on')  setTimeout(effectRedOn,  600);
+  if (fx === 'papers')  setTimeout(effectPapers,  300);
+  if (fx === 'red-on')  setTimeout(effectRedOn,    80);
   if (fx === 'red-off') effectRedOff();
-  if (fx === 'tears')   setTimeout(effectTears,  800);
+  if (fx === 'tears')   setTimeout(effectTears,   600);
 }
 
 // ── Paper bombing ──
@@ -1438,15 +1438,16 @@ function effectPapers() {
     const ty = cy + (Math.random() - 0.5) * gRect.height * 0.5;
     const r0 = (Math.random() - 0.5) * 30;
     const r1 = (Math.random() - 0.5) * 260;
-    const dur   = 600 + Math.random() * 600;
-    const delay = i * 85;
+    const dur   = 2200 + Math.random() * 1000;
+    const delay = i * 110;
 
     const anim = el.animate([
       { opacity: 0,   transform: `translate(${sx}px,${sy}px) rotate(${r0}deg) scale(0.5)` },
-      { opacity: 1,   transform: `translate(${sx}px,${sy}px) rotate(${r0}deg) scale(0.5)`, offset: 0.08 },
-      { opacity: 1,   transform: `translate(${tx}px,${ty}px) rotate(${r1}deg) scale(1)`,   offset: 0.65 },
-      { opacity: 0,   transform: `translate(${tx}px,${ty+55}px) rotate(${r1}deg) scale(0.85)` },
-    ], { duration: dur, delay, easing: 'cubic-bezier(0.15,0.8,0.35,1)', fill: 'both' });
+      { opacity: 1,   transform: `translate(${sx}px,${sy}px) rotate(${r0}deg) scale(0.8)`, offset: 0.06 },
+      { opacity: 1,   transform: `translate(${tx}px,${ty}px) rotate(${r1}deg) scale(1)`,   offset: 0.55 },
+      { opacity: 0.9, transform: `translate(${tx}px,${ty}px) rotate(${r1}deg) scale(1)`,   offset: 0.78 },
+      { opacity: 0,   transform: `translate(${tx}px,${ty+60}px) rotate(${r1}deg) scale(0.9)` },
+    ], { duration: dur, delay, easing: 'ease-out', fill: 'both' });
 
     anim.onfinish = () => el.remove();
   }
@@ -1482,8 +1483,8 @@ function effectTears() {
     el.className = 'tear';
     const x   = gRect.left + (0.15 + Math.random() * 0.70) * gRect.width;
     const h   = 8 + Math.random() * 16;
-    const dur = 1800 + Math.random() * 2400;
-    const dly = Math.random() * 4500;
+    const dur = 2000 + Math.random() * 1800;
+    const dly = Math.random() * 2000;
     el.style.height = h + 'px';
     layer.appendChild(el);
 
