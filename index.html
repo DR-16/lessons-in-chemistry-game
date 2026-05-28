@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lessons in Chemistry — A Choice Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #070d07;
+  --panel: #0e180e;
+  --border: #3a8a3a;
+  --text: #c8e898;
+  --amber: #f0a800;
+  --teal: #20967a;
+  --dim: #4a7a4a;
+  --glow: rgba(56,136,56,0.25);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 20px;
+  line-height: 1.55;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* CRT scanlines */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0.09) 0px, rgba(0,0,0,0.09) 1px,
+    transparent 1px, transparent 3px
+  );
+  pointer-events: none;
+  z-index: 900;
+}
+
+/* CRT vignette */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.75) 100%);
+  pointer-events: none;
+  z-index: 901;
+}
+
+/* ── TITLE SCREEN ── */
+#title-screen {
+  position: fixed; inset: 0;
+  background: #040804;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 20px;
+}
+
+.title-flask {
+  font-size: 52px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 12px rgba(56,200,80,0.5));
+  animation: flask-glow 3s ease-in-out infinite;
+}
+@keyframes flask-glow {
+  0%,100% { filter: drop-shadow(0 0 8px rgba(56,200,80,0.4)); }
+  50%      { filter: drop-shadow(0 0 22px rgba(56,200,80,0.9)); }
+}
+
+.title-year {
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  color: var(--dim);
+  letter-spacing: 8px;
+  margin-bottom: 14px;
+}
+
+#title-main {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(12px, 2.8vw, 22px);
+  color: var(--amber);
+  text-shadow: 0 0 24px rgba(240,168,0,0.7), 0 0 50px rgba(240,168,0,0.2);
+  text-align: center;
+  line-height: 1.8;
+  letter-spacing: 3px;
+}
+
+#title-sub {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(6px, 1.2vw, 9px);
+  color: var(--teal);
+  text-align: center;
+  margin: 8px 0 4px;
+  letter-spacing: 3px;
+  opacity: 0.8;
+}
+
+.title-author {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: var(--dim);
+  letter-spacing: 5px;
+  margin: 6px 0 24px;
+}
+
+hr.title-divider {
+  width: 200px;
+  border: none;
+  border-top: 1px solid #1a3a1a;
+  margin: 0 0 24px;
+}
+
+@keyframes pulse-btn {
+  0%,100% { opacity:1; box-shadow: 0 0 8px rgba(240,168,0,0.4); }
+  50%      { opacity:0.7; box-shadow: 0 0 20px rgba(240,168,0,0.9); }
+}
+
+#start-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  background: transparent;
+  border: 2px solid var(--amber);
+  color: var(--amber);
+  padding: 14px 32px;
+  cursor: pointer;
+  letter-spacing: 3px;
+  animation: pulse-btn 2.2s ease-in-out infinite;
+  margin-bottom: 16px;
+  transition: background 0.2s;
+}
+#start-btn:hover { background: rgba(240,168,0,0.1); }
+
+.title-note {
+  font-family: 'VT323', monospace;
+  font-size: 17px;
+  color: #3a5a3a;
+  text-align: center;
+  line-height: 2;
+}
+
+/* ── GAME CONTAINER ── */
+#game {
+  width: min(820px, 100vw);
+  background: var(--panel);
+  border: 3px solid var(--border);
+  box-shadow: 0 0 30px var(--glow), 0 0 60px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  image-rendering: pixelated;
+}
+
+/* ── HEADER ── */
+#header {
+  background: #070f07;
+  border-bottom: 2px solid #1e4a1e;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.game-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: var(--amber);
+  text-shadow: 0 0 8px rgba(240,168,0,0.5);
+  letter-spacing: 2px;
+}
+
+#progress-bar { display: flex; gap: 3px; align-items: center; }
+
+.pdot {
+  width: 7px; height: 7px;
+  background: #1a3a1a;
+  border: 1px solid #2a5a2a;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.pdot.on {
+  background: var(--amber);
+  box-shadow: 0 0 4px rgba(240,168,0,0.7);
+  border-color: var(--amber);
+}
+
+/* ── SCENE ART ── */
+#scene-art {
+  height: 185px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 2px solid #1a3a1a;
+  flex-shrink: 0;
+  transition: background 0.8s;
+}
+
+.bg-lab    { background: linear-gradient(170deg,#030d08 0%,#071a0e 60%,#030d08 100%); }
+.bg-home   { background: linear-gradient(170deg,#0d0805 0%,#1a1005 60%,#0d0805 100%); }
+.bg-tv     { background: linear-gradient(170deg,#050510 0%,#0a0518 60%,#050510 100%); }
+.bg-outside{ background: linear-gradient(170deg,#040c14 0%,#07101e 60%,#040c14 100%); }
+.bg-dark   { background: linear-gradient(170deg,#020202 0%,#050505 100%); }
+.bg-warm   { background: linear-gradient(170deg,#140804 0%,#1e1008 60%,#140804 100%); }
+
+#act-label {
+  position: absolute;
+  top: 7px; left: 12px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 6px;
+  color: var(--teal);
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
+#scene-art-inner {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.art-pre {
+  font-family: 'VT323', monospace;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.15;
+  white-space: pre;
+  text-shadow: 0 0 5px currentColor;
+  opacity: 0.85;
+}
+
+#scene-title {
+  position: absolute;
+  bottom: 7px; left: 0; right: 0;
+  text-align: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: var(--amber);
+  text-shadow: 0 0 8px rgba(240,168,0,0.6);
+  letter-spacing: 1px;
+}
+
+/* ── TEXT AREA ── */
+#text-wrap {
+  flex: 1; overflow: hidden;
+  display: flex; flex-direction: column; min-height: 0;
+}
+
+#text-area {
+  padding: 16px 22px 10px;
+  overflow-y: auto; flex: 1; min-height: 0;
+}
+#text-area::-webkit-scrollbar { width: 5px; }
+#text-area::-webkit-scrollbar-track { background: #070f07; }
+#text-area::-webkit-scrollbar-thumb { background: #2a5a2a; }
+
+#speaker {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: var(--teal);
+  margin-bottom: 9px;
+  letter-spacing: 1px;
+  min-height: 14px;
+}
+
+#narrative-text { font-size: 20px; line-height: 1.62; color: var(--text); }
+
+.hl  { color: var(--amber); }
+.em  { color: #aad878; font-style: italic; }
+.str { color: #e8f8c0; }
+
+/* ── CHOICES ── */
+#choices-area {
+  padding: 12px 20px 16px;
+  display: grid; gap: 9px;
+  flex-shrink: 0;
+  border-top: 1px solid #162a16;
+}
+
+.choice-btn {
+  background: #070f07;
+  border: 2px solid var(--border);
+  color: var(--text);
+  padding: 11px 15px;
+  font-family: 'VT323', monospace;
+  font-size: 19px;
+  cursor: pointer;
+  text-align: left;
+  display: flex; align-items: flex-start; gap: 10px;
+  transition: background 0.1s, border-color 0.1s, transform 0.1s, box-shadow 0.1s;
+  line-height: 1.4;
+}
+.choice-btn .arrow {
+  color: var(--border); font-size: 13px; margin-top: 2px;
+  flex-shrink: 0; transition: color 0.1s;
+}
+.choice-btn:hover {
+  background: #102010; border-color: var(--amber); color: #fff;
+  transform: translateX(3px);
+  box-shadow: 0 0 12px rgba(240,168,0,0.25), inset 0 0 8px rgba(240,168,0,0.08);
+}
+.choice-btn:hover .arrow { color: var(--amber); }
+.choice-btn:active { transform: translateX(5px); }
+
+/* ── STATUS BAR ── */
+#status-bar {
+  background: #040c04; border-top: 1px solid #162a16;
+  padding: 5px 16px;
+  display: flex; justify-content: space-between;
+  font-size: 14px; color: #2a5a2a; flex-shrink: 0;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+.fade-in { animation: fadeIn 0.35s ease both; }
+
+@keyframes flash-in {
+  0%   { opacity:0; background:#203a20; }
+  30%  { opacity:1; background:#102010; }
+  100% { background:#070f07; }
+}
+.flash { animation: flash-in 0.4s ease both; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ TITLE SCREEN ═══════════════ -->
+<div id="title-screen">
+  <div class="title-flask">⚗</div>
+  <div class="title-year">1952 · CALIFORNIA</div>
+  <div id="title-main">LESSONS IN<br>CHEMISTRY</div>
+  <div id="title-sub">A CHOICE STORY · BASED ON THE NOVEL BY BONNIE GARMUS</div>
+  <div class="title-author">— Play as Elizabeth Zott —</div>
+  <hr class="title-divider">
+  <button id="start-btn" onclick="startGame()">▶ START GAME</button>
+  <div class="title-note">
+    Every choice is yours · Multiple endings<br>
+    ~10–15 minutes to complete · Free to play
+  </div>
+</div>
+
+<!-- ═══════════════ GAME SCREEN ═══════════════ -->
+<div id="game" style="display:none">
+  <div id="header">
+    <span class="game-title">CHEMISTRY</span>
+    <div id="progress-bar"></div>
+  </div>
+
+  <div id="scene-art" class="bg-dark">
+    <div id="act-label"></div>
+    <div id="scene-art-inner"></div>
+    <div id="scene-title"></div>
+  </div>
+
+  <div id="text-wrap">
+    <div id="text-area">
+      <div id="speaker"></div>
+      <div id="narrative-text"></div>
+    </div>
+    <div id="choices-area"></div>
+  </div>
+
+  <div id="status-bar">
+    <span id="scene-counter">Scene 1</span>
+    <span id="path-label" style="color:var(--dim)">Fate unfolds…</span>
+  </div>
+</div>
+
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// PIXEL ART SCENES
+// ══════════════════════════════════════════════════════════════
+const ARTS = {
+
+'lab-night': `    ╔══════════════════════════════════╗
+    ║  HASTINGS RESEARCH INST.  Lab #3 ║
+    ╠══════════════════════════════════╣
+    ║  ╔══╗  ╔════╗  ╔══╗  ╔════╗  ║
+    ║  ║▓▓║  ║░░░░║  ║██║  ║~~~~║  ║
+    ║  ╚══╝  ╚════╝  ╚══╝  ╚════╝  ║
+    ║  Tube   Beaker  Cyl.   Flask   ║
+    ║                               ║
+    ║  CH₃COOH ⇌ CH₃COO⁻ + H⁺     ║
+    ║  △G = △H − T△S               ║
+    ╚══════════════════════════════════╝`,
+
+'lab-morning': `    ╔═══════════════════════════════════╗
+    ║  Lab Notebook #447  1952.09.15   ║
+    ╠═══════════════════════════════════╣
+    ║  Subject: Asymmetric alanine syn. ║
+    ║  Temp: 78°C   Duration: 4h       ║
+    ║  Yield: 67.3%   ← BREAKTHROUGH! ║
+    ║                                  ║
+    ║  Researcher: Elizabeth Zott      ║
+    ║  ─────────── Unsigned ─────────  ║
+    ║  [Dr. Donatti has taken a copy]  ║
+    ╚═══════════════════════════════════╝`,
+
+'confrontation': `         ┌─────────────────────────┐
+         │  Corridor · Hastings    │
+         │                        │
+    👩‍🔬  ◄────── Standoff ──────►  🧑‍💼
+  Elizabeth              Donatti
+         │                        │
+         │  "This is my research."│
+         └─────────────────────────┘`,
+
+'desk-work': `    ┌──────────────────────────────┐
+    │  Filing Cabinet B · Drawer 3 │
+    ├──────────────────────────────┤
+    │  [Research notes - copy] 🔒  │
+    │  [Experimental data - bkp]🔒 │
+    │  [Original protocol]     🔒  │
+    │                              │
+    │  "Someday, this will         │
+    │   speak for itself."         │
+    └──────────────────────────────┘`,
+
+'hallway': `    ╔════════════════════════════════╗
+    ║  Corridor · Hastings 1st Fl.  ║
+    ╠════════════════════════════════╣
+    ║                               ║
+    ║   👩‍🔬 ──→ 💥 ←── 👨‍🔬        ║
+    ║                               ║
+    ║   ☕ Coffee — on the floor    ║
+    ║   📄 Papers — scattered       ║
+    ║                               ║
+    ╚════════════════════════════════╝`,
+
+'calvin-id': `    ╔══════════════════════════════╗
+    ║  HASTINGS RESEARCH INSTITUTE ║
+    ║  ──────────────────────────  ║
+    ║  Calvin R. Evans             ║
+    ║  Ph.D  ·  Chemistry          ║
+    ║                              ║
+    ║  3 × Nature publications     ║
+    ║  Specialty: Organic synthesis║
+    ║  ──────────────────────────  ║
+    ║  Six-Thirty  🐕              ║
+    ╚══════════════════════════════╝`,
+
+'lab-two': `    Blackboard:
+    ─────────────────────────────────
+    NH₂-CH₂-COOH + R-CHO  →  ???
+
+    E.Z: "Stereochemical control needed"
+    C.E: "R/S config affects yield  ↑↑"
+    E.Z: "Also E/Z isomer separation"
+    C.E: "...you're right."
+    ─────────────────────────────────
+    [They stand here for three hours]`,
+
+'house-ext': `         ╱╲
+        ╱  ╲         ☀
+       ╔════╔╗
+       ║ 🪟 ║║
+    ╔══╬════╬╬══╗
+    ║  └────┘   ║
+    ╚═══════════╝
+      Blossom Court
+          🐕  ← Six-Thirty`,
+
+'house-int': `    ┌──────────────────────────────┐
+    │  Kitchen Blackboard:         │
+    │  Markovnikov → Aldol condens.│
+    │  Caramel = dehydration +     │
+    │            Maillard reaction │
+    │                              │
+    │  Fridge note: "don't forget  │
+    │  the egg" (protein: 78°C)    │
+    │                              │
+    │  🐕 Six-Thirty  in corner   │
+    └──────────────────────────────┘`,
+
+'kitchen-news': `    ┌──────────────────────────────┐
+    │  Kitchen  ·  6:00 AM         │
+    │                              │
+    │  Fridge: [empty]             │
+    │  Coffee: smells unbearable   │
+    │  Calendar: one date circled  │
+    │                              │
+    │  Chemical analysis:          │
+    │  hCG levels  →  confirmed    │
+    │  Gestation: ~8 weeks         │
+    └──────────────────────────────┘`,
+
+'couple': `    ┌──────────────────────────────┐
+    │                              │
+    │   👩  ◄─── News ──►  👨      │
+    │                              │
+    │ Elizabeth          Calvin    │
+    │                              │
+    │  "We should design an        │
+    │   optimal nutritional plan." │
+    │                              │
+    └──────────────────────────────┘`,
+
+'park': `    🌳        🌳        🌳
+              🐕
+          ～～～～～
+      Autumn in California
+         Oaks turning orange
+    Elizabeth and Six-Thirty, walking`,
+
+'dark-road': `    ════════════════════════════════
+       Intersection  ·  November 1952
+    ════════════════════════════════
+
+
+
+
+    ════════════════════════════════`,
+
+'empty-lab': `    ╔═════════════════════════════╗
+    ║  Lab #3  ──────── Vacated   ║
+    ╠═════════════════════════════╣
+    ║  Bench: [cleared]           ║
+    ║  Blackboard: [erased]       ║
+    ║  Files: [removed]           ║
+    ║                             ║
+    ║  Reason: "Moral turpitude"  ║
+    ║          (cohabitation)     ║
+    ╚═════════════════════════════╝`,
+
+'home-baby': `    ┌──────────────────────────────┐
+    │  Blossom Court  ·  1953      │
+    ├──────────────────────────────┤
+    │                              │
+    │   Madeline Zott              │
+    │   Born: June 1953            │
+    │   ♥ Father: Calvin Evans    │
+    │   ♥ Mother: Elizabeth Zott  │
+    │                              │
+    │   🐕 Six-Thirty  beside her │
+    └──────────────────────────────┘`,
+
+'telephone': `    ╔══════════════════════════════╗
+    ║                              ║
+    ║      ☎  Incoming Call        ║
+    ║                              ║
+    ║  KCTV Television             ║
+    ║  ─────────────────────────  ║
+    ║  Walter Pine  ·  Producer    ║
+    ║                              ║
+    ║  "Supper at Six..."          ║
+    ╚══════════════════════════════╝`,
+
+'tv-studio': `    ╔══════════════════════════════╗
+    ║  KCTV   ◉ ON AIR  ◉         ║
+    ╠══════════════════════════════╣
+    ║  ┌────────────────────────┐  ║
+    ║  │   SUPPER AT SIX        │  ║
+    ║  │   Hosted by            │  ║
+    ║  │   Elizabeth Zott       │  ║
+    ║  └────────────────────────┘  ║
+    ║  Ratings: ████████░░  rising ║
+    ╚══════════════════════════════╝`,
+
+'tv-kitchen': `    ◉ REC  ─────────────────────────
+    Studio Kitchen  ·  Live Broadcast
+
+    E. Zott: "Good evening.
+              I'm Elizabeth Zott.
+              Tonight: chemistry."
+
+    Control booth: Pine covers face
+    Ratings: ↑↑↑↑
+    ─────────────────────────────────`,
+
+'mailbox': `    ┌──────────────────────────────┐
+    │  Viewer Mail                 │
+    ├──────────────────────────────┤
+    │  Week  1:      127 letters   │
+    │  Week  4:    1,847 letters   │
+    │  Week 12:   18,443 letters !!│
+    │  Week 26:  103,000+ letters  │
+    │                              │
+    │  "I finally know what I'm    │
+    │   actually doing."           │
+    └──────────────────────────────┘`,
+
+'madeline': `    ╔══════════════════════════════╗
+    ║  Madeline Zott  ·  Age 7     ║
+    ╠══════════════════════════════╣
+    ║  Questions on file:          ║
+    ║  · Why is the sky blue?      ║
+    ║  · What is the speed of light║
+    ║  · Who is my father?         ║
+    ║  · Why isn't this fair?      ║
+    ║                              ║
+    ║  Six-Thirty: he understands. ║
+    ╚══════════════════════════════╝`,
+
+'mother-child': `    ┌──────────────────────────────┐
+    │                              │
+    │   👩  ────────  👧           │
+    │ Elizabeth      Madeline      │
+    │                              │
+    │  "Your father was            │
+    │   Calvin Evans.              │
+    │   He would have been         │
+    │   so proud of you."          │
+    │                              │
+    │   🐕  Six-Thirty             │
+    └──────────────────────────────┘`,
+
+'old-box': `    ╔══════════════════════════════╗
+    ║  Old Box  [Harriet's keeping]║
+    ╠══════════════════════════════╣
+    ║  · Harvard transcripts       ║
+    ║  · Unsent letter (sealed)    ║
+    ║  · Legal documents           ║
+    ║  · Research ms. [ORIGINAL]   ║
+    ║  · Calvin's handwritten notes║
+    ╠══════════════════════════════╣
+    ║  The truth — here all along  ║
+    ╚══════════════════════════════╝`,
+
+'vindication': `         ┌──────────────────────┐
+         │   HARVARD UNIVERSITY │
+         │   ─────────────────  │
+         │  Academic Honor      │
+         │  Restored            │
+         │  Calvin R. Evans     │
+         │  Ph.D  (posthumous)  │
+         │                      │
+         │  April 1955          │
+         └──────────────────────┘`,
+
+'sunset': `    🌅
+
+  🌳  ╔════╗  🌳
+      ║ 🏠 ║
+      ╚════╝
+
+    Blossom Court  ·  1956
+
+    🐕  Six-Thirty  under the oak`,
+
+};
+
+
+// ══════════════════════════════════════════════════════════════
+// STORY SCENES
+// ══════════════════════════════════════════════════════════════
+const SCENES = {
+
+// ─── Prologue ────────────────────────────────────────────────
+start: {
+  act: 'Prologue',
+  bg: 'bg-lab',
+  title: '1952  ·  California  ·  Hastings Research Institute',
+  art: 'lab-night',
+  speaker: 'Narrator',
+  text: `1952. California. The war is over, but a quieter battle plays out every day inside these laboratories.<br><br>At this institution — run almost entirely by men — one chemist has earned a reputation for precision, discipline, and absolute scientific rigor.<br><br>Her name is <span class="hl">Elizabeth Zott</span>.<br><br><span class="str">And today, everything is about to change.</span>`,
+  choices: [
+    { text: 'Walk into the lab. Start a new day.', next: 'lab_morning' }
+  ]
+},
+
+// ─── Act I ───────────────────────────────────────────────────
+lab_morning: {
+  act: 'Act I  ·  Hastings',
+  bg: 'bg-lab',
+  title: 'Lab  ·  7:00 AM',
+  art: 'lab-morning',
+  speaker: 'Narration',
+  text: `The bench is lined with beakers and pipettes. Elizabeth has spent sixteen months on this research. She hands the completed report to her supervisor — <span class="hl">Dr. Donatti</span>.<br><br>He glances at it. Pushes it to the corner of his desk.<br><br><span class="hl">"Zott, your job is to organize the data. I'll handle the publication."</span><br><br>Her name will not appear on it.`,
+  choices: [
+    { text: '"My name belongs on this research. I designed every experiment."', next: 'confront', flag: { assertive: true } },
+    { text: 'Swallow it. Quietly copy the raw data to a private file.', next: 'endure', flag: { assertive: false } },
+  ]
+},
+
+confront: {
+  act: 'Act I  ·  Hastings',
+  bg: 'bg-lab',
+  title: 'Standoff',
+  art: 'confrontation',
+  speaker: 'Elizabeth',
+  text: `<span class="hl">"Dr. Donatti,"</span> she says. Her voice is as steady as a calibrated burette. <span class="hl">"The breakthrough yield data on asymmetric alanine synthesis is based on an experimental protocol I designed independently.</span><br><br><span class="hl">That is not data organization. That is original research.</span><br><br><span class="hl">My name should be listed as first author."</span><br><br>Donatti's expression shifts.`,
+  choices: [
+    { text: "Hold his gaze. Don't blink.", next: 'confront_result' },
+  ]
+},
+
+confront_result: {
+  act: 'Act I  ·  Hastings',
+  bg: 'bg-lab',
+  title: 'Aftermath',
+  art: 'confrontation',
+  speaker: 'Narration',
+  text: `Donatti informs her that her "attitude problem" will be noted in her personnel file.<br><br>Elizabeth returns to her bench. She makes a full copy of every original experimental notebook and locks them in the bottom drawer.<br><br>Then she steps into the hallway.<br><br><span class="em">She doesn't know yet what's waiting around the corner.</span>`,
+  choices: [
+    { text: 'Step into the hallway.', next: 'meet_calvin' },
+  ]
+},
+
+endure: {
+  act: 'Act I  ·  Hastings',
+  bg: 'bg-lab',
+  title: 'Endurance',
+  art: 'desk-work',
+  speaker: 'Narration',
+  text: `Elizabeth folds her anger inward — the way you'd cap an unstable compound — and begins reordering the folders.<br><br>She knows how easily a woman's name disappears in science.<br><br>She makes one quiet copy of her notes. Locks them away.<br><br><span class="em">"Someday," she tells herself, "this data will speak for itself."</span><br><br>At noon, she walks the corridor alone.`,
+  choices: [
+    { text: 'Walk into the corridor.', next: 'meet_calvin' },
+  ]
+},
+
+// ─── Meet Calvin ─────────────────────────────────────────────
+meet_calvin: {
+  act: 'Act I  ·  First Contact',
+  bg: 'bg-lab',
+  title: 'Hallway  ·  Collision',
+  art: 'hallway',
+  speaker: 'Narration',
+  text: `She's distracted — running equations in her head — and doesn't look up in time.<br><br>She collides with someone. Coffee flies. Papers scatter across the linoleum.<br><br><span class="hl">"Oh God, I'm so sorry!"</span> The man crouches immediately, gathering her pages with genuine urgency.`,
+  choices: [
+    { text: '"Watch where you\'re going." (Assess the notebook damage first.)', next: 'calvin_sharp' },
+    { text: '"It\'s fine." (Kneel beside him. Start collecting papers.)', next: 'calvin_kind' },
+  ]
+},
+
+calvin_sharp: {
+  act: 'Act I  ·  First Contact',
+  bg: 'bg-lab',
+  title: 'Calvin Evans',
+  art: 'calvin-id',
+  speaker: 'Narration',
+  text: `<span class="hl">"I'm so sorry — I wasn't watching —"</span> He trails off, eyes on the title page of the report in his hand.<br><br><span class="em">Asymmetric Synthesis of Alanine via Retrosynthetic Analysis — E. Zott</span><br><br>He looks up. His name badge reads: <span class="str">CALVIN R. EVANS · Chemistry</span><br><br>Three consecutive papers in <em>Nature</em>. That Calvin Evans.<br><br><span class="hl">"Hold on — is this retrosynthetic approach to alanine — did you derive this yourself?"</span>`,
+  choices: [
+    { text: '"Yes. Do you have an objection?"', next: 'chem_talk' },
+  ]
+},
+
+calvin_kind: {
+  act: 'Act I  ·  First Contact',
+  bg: 'bg-lab',
+  title: 'Calvin Evans',
+  art: 'calvin-id',
+  speaker: 'Narration',
+  text: `He hands back each page carefully. His embarrassment seems real, not performed.<br><br><span class="hl">"I haven't been sleeping — I'm so sorry —"</span> He stops. He's reading the title page.<br><br><span class="em">Asymmetric Synthesis of Alanine via Retrosynthetic Analysis — E. Zott</span><br><br>His name badge: <span class="str">CALVIN R. EVANS · Chemistry</span><br><br><span class="hl">"Wait,"</span> he says quietly. <span class="hl">"Is this retrosynthetic approach yours?"</span>`,
+  choices: [
+    { text: '"Yes. You know this area?"', next: 'chem_talk' },
+  ]
+},
+
+chem_talk: {
+  act: 'Act I  ·  The Language',
+  bg: 'bg-lab',
+  title: 'Hallway Debate',
+  art: 'lab-two',
+  speaker: 'Narration',
+  text: `And just like that — in a hallway, coffee still drying on the floor — they begin arguing.<br><br>Calvin challenges a premise. Elizabeth dismantles the challenge. Calvin refines his position. Elizabeth finds a new flaw in that.<br><br>Twenty minutes later they're still standing there. Colleagues walk around them without comment.<br><br><span class="em">This is the language of chemistry. It may also be something else entirely.</span>`,
+  choices: [
+    { text: '"My lab is on the third floor — if you\'d like to continue this." (Invite him up.)', next: 'lab_together', flag: { partnership: true } },
+    { text: 'Nod politely. Collect your papers. Walk away. This was nothing.', next: 'lab_apart', flag: { partnership: false } },
+  ]
+},
+
+lab_together: {
+  act: 'Act I  ·  Collaboration',
+  bg: 'bg-lab',
+  title: 'Third Floor Lab',
+  art: 'lab-two',
+  speaker: 'Narration',
+  text: `Calvin's lab is large and spectacular in its disorder. His dog, <span class="hl">Six-Thirty</span>, lifts his head from a blanket in the corner and wags his tail once at Elizabeth.<br><br>For the next three hours, they don't stop. Equations cover every inch of the blackboard. The argument spirals into increasingly exact sub-arguments. The coffee goes cold untouched.<br><br><span class="em">Elizabeth realizes, slowly, that this is the first time another person has genuinely matched her.</span><br><br>The thought is unsettling.`,
+  choices: [
+    { text: 'Continue…', next: 'life_begin' },
+  ]
+},
+
+lab_apart: {
+  act: 'Act I  ·  Divergence',
+  bg: 'bg-lab',
+  title: 'Walking Away',
+  art: 'desk-work',
+  speaker: 'Narration',
+  text: `Elizabeth nods politely and walks away.<br><br>She doesn't need distraction. She doesn't need colleagues. She needs bench time and quiet.<br><br>But that night, she opens her notebook to a clean page and writes down the exact objection he'd raised. She puts a question mark beside it.<br><br><span class="em">He might not have been entirely wrong.</span>`,
+  choices: [
+    { text: 'The next morning, she brings him the answer.', next: 'life_begin', flag: { partnership: true } },
+  ]
+},
+
+// ─── Act II ──────────────────────────────────────────────────
+life_begin: {
+  act: 'Act II  ·  Blossom Court',
+  bg: 'bg-home',
+  title: 'Moving In',
+  art: 'house-ext',
+  speaker: 'Narration',
+  text: `Weeks become months. They spend more and more time in each other's labs. Their meals drift together.<br><br>Calvin asks Elizabeth to move in. He lives on Blossom Court — a quiet street lined with oleander.<br><br><span class="em">In 1952 California, an unmarried couple living together is serious scandal.</span><br><br><span class="hl">"Will you?"</span> Calvin asks.`,
+  choices: [
+    { text: '"Yes — but I need my own workspace. And equal say in everything." (Insist on independence.)', next: 'cohabitate', flag: { independent: true } },
+    { text: '"Yes — but shouldn\'t we consider marriage first?" (Honor the convention.)', next: 'marriage_talk', flag: { independent: false } },
+  ]
+},
+
+marriage_talk: {
+  act: 'Act II  ·  Blossom Court',
+  bg: 'bg-home',
+  title: 'On Marriage',
+  art: 'house-int',
+  speaker: 'Calvin',
+  text: `Calvin is quiet for a long moment.<br><br><span class="hl">"Elizabeth. There's something I need to tell you."</span><br><br>He tells her about Harvard. About the professor who stole his dissertation and used it to have him expelled. About a legal document in a box he hasn't opened in years.<br><br><span class="em">They both carry wounds they don't show.</span><br><br><span class="hl">"I love you,"</span> he says. <span class="hl">"But marriage — I need more time."</span>`,
+  choices: [
+    { text: '"I understand. We can wait. Let\'s just start." (Move in regardless.)', next: 'cohabitate', flag: { independent: true } },
+  ]
+},
+
+cohabitate: {
+  act: 'Act II  ·  Blossom Court',
+  bg: 'bg-home',
+  title: 'Life on Blossom Court',
+  art: 'house-int',
+  speaker: 'Narration',
+  text: `They settle into a life together.<br><br>Mornings: Calvin runs, Six-Thirty at his heels. Elizabeth runs experiments on breakfast — there are chemical equations on the refrigerator.<br><br>Evenings: both at the kitchen table, one working through organic synthesis routes, the other correcting spectral data.<br><br><span class="em">These are the most productive, most peaceful days of Elizabeth's life.</span>`,
+  choices: [
+    { text: 'Continue…', next: 'pregnancy' },
+  ]
+},
+
+// ─── Pregnancy ───────────────────────────────────────────────
+pregnancy: {
+  act: 'Act II  ·  A Turn',
+  bg: 'bg-home',
+  title: 'Discovery',
+  art: 'kitchen-news',
+  speaker: 'Narration',
+  text: `An ordinary morning. Elizabeth stands in front of the refrigerator and doesn't move.<br><br>She's been nauseous at the smell of coffee for three weeks running.<br><br>As a chemist, she knows exactly what's happening inside her body.<br><br><span class="str">She is pregnant.</span><br><br>Calvin is at the boathouse, training.`,
+  choices: [
+    { text: 'Wait for him to come home. Tell him immediately.', next: 'tell_calvin', flag: { open: true } },
+    { text: 'You need time to sit with this alone. Say nothing yet.', next: 'alone_news', flag: { open: false } },
+  ]
+},
+
+tell_calvin: {
+  act: 'Act II  ·  A Turn',
+  bg: 'bg-home',
+  title: 'The News',
+  art: 'couple',
+  speaker: 'Elizabeth',
+  text: `He pushes through the door, sweat-damp, Six-Thirty bounding ahead of him.<br><br>Elizabeth is waiting in the hallway. She's holding a piece of paper — her calculations, written in chemical notation.<br><br><span class="hl">"Calvin. I have something to tell you."</span><br><br>He reads the paper. Looks at Elizabeth. Reads it again.<br><br>Then he smiles — the rare, real kind.<br><br><span class="hl">"We should design an optimal nutritional plan."</span>`,
+  choices: [
+    { text: 'Fate, sometimes, cannot be predicted…', next: 'calvins_death' },
+  ]
+},
+
+alone_news: {
+  act: 'Act II  ·  A Turn',
+  bg: 'bg-outside',
+  title: 'Alone With It',
+  art: 'park',
+  speaker: 'Narration',
+  text: `Elizabeth takes Six-Thirty outside. Autumn in California — the oaks are turning orange.<br><br>She thinks about her research. The years ahead. This person she is apparently now making.<br><br><span class="em">Can she be a good mother and a good scientist at the same time?</span><br><br>She hasn't found the answer yet.<br><br><span class="em">She doesn't have time to find it.</span>`,
+  choices: [
+    { text: 'She doesn\'t have time…', next: 'calvins_death' },
+  ]
+},
+
+// ─── Calvin's Death ──────────────────────────────────────────
+calvins_death: {
+  act: 'Act II  ·  Loss',
+  bg: 'bg-dark',
+  title: 'November 1952',
+  art: 'dark-road',
+  speaker: 'Narration',
+  text: `That morning, Calvin leaves for his run.<br><br>Six-Thirty doesn't go with him.<br><br><br><br>He doesn't come home.<br><br><span class="hl">A delivery truck. An intersection.</span><br><br>That's all.`,
+  choices: [
+    { text: '…', next: 'aftermath' },
+  ]
+},
+
+// ─── Act III ─────────────────────────────────────────────────
+aftermath: {
+  act: 'Act III  ·  After',
+  bg: 'bg-dark',
+  title: 'Wreckage',
+  art: 'empty-lab',
+  speaker: 'Narration',
+  text: `Hastings fires Elizabeth for <span class="hl">"moral turpitude."</span><br><br>She moves back to the house on Blossom Court. Her belly grows day by day. Calvin's estate is tangled in probate. The bills arrive.<br><br>The neighbor, <span class="hl">Harriet Sloane</span>, brings food without asking questions. Six-Thirty stays. He doesn't leave.<br><br><span class="em">The world is unjust. But the child is coming regardless.</span>`,
+  choices: [
+    { text: 'The baby arrives. She names her Madeline.', next: 'madeline_arrives' },
+  ]
+},
+
+madeline_arrives: {
+  act: 'Act III  ·  Madeline',
+  bg: 'bg-warm',
+  title: 'Madeline',
+  art: 'home-baby',
+  speaker: 'Narration',
+  text: `Madeline Zott is born alarmingly intelligent.<br><br>By three she asks questions that silence adults. By four she's reading independently. By five she demands to know why she has no father.<br><br>Elizabeth studies the bills. Calvin's estate is still unresolved.<br><br>Then the telephone rings.<br><br><span class="hl">"This is Walter Pine, producer at KCTV…"</span>`,
+  choices: [
+    { text: 'Hang up. This isn\'t who you are.', next: 'refuse_first' },
+    { text: 'Hear him out. What does he actually want?', next: 'hear_offer' },
+  ]
+},
+
+// ─── The TV Offer ─────────────────────────────────────────────
+refuse_first: {
+  act: 'Act III  ·  The Choice',
+  bg: 'bg-home',
+  title: 'Refusal',
+  art: 'telephone',
+  speaker: 'Elizabeth',
+  text: `<span class="hl">"Mr. Pine, I'm a chemist. Not a performer."</span><br><br><span class="hl">"Dr. Zott —"</span><br><span class="hl">"Ms. Zott."</span><br><span class="hl">"Ms. Zott, the show is called Supper at Six. It's a cooking program. We need someone who can —"</span><br><br>She hangs up.<br><br>Then the next bill arrives. Madeline needs new shoes.<br><br><span class="em">She dials back.</span>`,
+  choices: [
+    { text: '"Mr. Pine. I\'d like to reconsider."', next: 'hear_offer' },
+  ]
+},
+
+hear_offer: {
+  act: 'Act III  ·  The Choice',
+  bg: 'bg-tv',
+  title: 'KCTV',
+  art: 'tv-studio',
+  speaker: 'Walter Pine',
+  text: `Walter Pine looks like a man life has been slowly sitting on.<br><br><span class="hl">"Our ratings are dropping. Women don't want another man telling them what to cook."</span><br><br>He slides the concept sheet across. A standard cooking show. Warm. Approachable.<br><br>Elizabeth reads it. Her expression doesn't change.<br><br><span class="hl">"I can do this show,"</span> she says. <span class="hl">"But it has to be done my way."</span>`,
+  choices: [
+    { text: '"I\'m going to teach real chemistry. Cooking is my laboratory." (Hold the line on science.)', next: 'supper_science', flag: { science: true } },
+    { text: '"Fine. I\'ll give them a cooking show." (Get in the door first — adapt later.)', next: 'supper_cooking', flag: { science: false } },
+  ]
+},
+
+// ─── Act IV ──────────────────────────────────────────────────
+supper_science: {
+  act: 'Act IV  ·  Supper at Six',
+  bg: 'bg-tv',
+  title: 'On Air',
+  art: 'tv-kitchen',
+  speaker: 'Elizabeth',
+  text: `The ON AIR light goes red.<br><br>Elizabeth stands in the studio kitchen, surveys the room, and looks directly into Camera One.<br><br><span class="hl">"Good evening. I'm Elizabeth Zott. Tonight, we're going to talk about <span class='str'>chemistry</span>."</span><br><br>She holds up an egg.<br><br><span class="hl">"The protein denaturation happening when you cook this — you've been controlling it every morning without knowing why. Tonight, let's find out."</span><br><br>In the control booth, Pine puts his head in his hands. The ratings start climbing.`,
+  choices: [
+    { text: 'Stay the course. No matter what anyone says.', next: 'audience_impact' },
+  ]
+},
+
+supper_cooking: {
+  act: 'Act IV  ·  Supper at Six',
+  bg: 'bg-tv',
+  title: 'On Air',
+  art: 'tv-kitchen',
+  speaker: 'Narration',
+  text: `The ON AIR light goes red.<br><br>Elizabeth follows the rundown: a custard recipe. Warm and approachable, exactly as Pine wanted.<br><br>But as she whisks the cream, she says:<br><br><span class="hl">"Starch gelatinization requires sustained heat and agitation — that's a structural change at the molecular level, not unlike how —"</span><br><br>She pauses.<br><br><span class="hl">"— not unlike how your lives are also always changing shape. You have more agency over that than you know."</span>`,
+  choices: [
+    { text: '"They don\'t just need recipes," Elizabeth thinks. "They need to understand what they\'re doing."', next: 'audience_impact', flag: { science: true } },
+  ]
+},
+
+audience_impact: {
+  act: 'Act IV  ·  Impact',
+  bg: 'bg-tv',
+  title: 'The Letters',
+  art: 'mailbox',
+  speaker: 'Narration',
+  text: `The letters begin arriving.<br><br>A woman from Orange County: <span class="hl">"I told my children their mother is a scientist."</span><br><br>A nurse: <span class="hl">"I finally worked up the courage to apply to medical school."</span><br><br>A housewife: <span class="hl">"I now have my own laboratory. It's the kitchen, but it counts."</span><br><br>Elizabeth reads every letter. She sits with them a long time.<br><br><span class="em">Chemistry changed the world. She may be changing something smaller, but no less real.</span>`,
+  choices: [
+    { text: 'But at home, a question is waiting.', next: 'madeline_asks' },
+  ]
+},
+
+// ─── Act V ───────────────────────────────────────────────────
+madeline_asks: {
+  act: 'Act V  ·  Truth',
+  bg: 'bg-home',
+  title: 'The Question',
+  art: 'madeline',
+  speaker: 'Madeline',
+  text: `<span class="hl">"Mom, why does Six-Thirty sometimes walk to the cemetery by himself?"</span><br><br>Madeline is seven. She has Calvin's eyes and Elizabeth's relentlessness.<br><br><span class="hl">"Mom. Who is my father?"</span><br><br>Elizabeth looks at this child — assembled from two scientists' DNA, one accident, and four years of stubborn will.<br><br><span class="em">What does she say?</span>`,
+  choices: [
+    { text: 'Tell her everything. The whole truth about Calvin.', next: 'tell_truth', flag: { truthful: true } },
+    { text: '"Your father was a great scientist. You\'ll understand someday."', next: 'partial_truth', flag: { truthful: false } },
+  ]
+},
+
+tell_truth: {
+  act: 'Act V  ·  Truth',
+  bg: 'bg-home',
+  title: 'Your Father',
+  art: 'mother-child',
+  speaker: 'Elizabeth',
+  text: `Elizabeth sits down and takes Madeline's hand.<br><br>She starts at the beginning: the collision in the hallway, the coffee, the equations they wrote until midnight, a dog named Six-Thirty, the oak tree in the yard, and what happened on a November morning.<br><br>Madeline listens without moving. One tear comes. She wipes it fast with her sleeve.<br><br><span class="hl">"What was he like?"</span><br><br><span class="hl">"He would have been so proud of you,"</span> Elizabeth says. <span class="hl">"He was, in every way that mattered."</span>`,
+  choices: [
+    { text: 'But there is still one more thing Elizabeth must face.', next: 'old_box' },
+  ]
+},
+
+partial_truth: {
+  act: 'Act V  ·  Truth',
+  bg: 'bg-home',
+  title: 'Protection',
+  art: 'mother-child',
+  speaker: 'Narration',
+  text: `Madeline nods. But Elizabeth can see it's not enough.<br><br>Those eyes — Calvin's eyes — are filing the question away for later.<br><br><span class="em">Is she protecting her daughter? Or herself?</span><br><br>Six-Thirty stands, crosses the room, and presses his nose against Elizabeth's hand.<br><br><span class="em">Some truths don't stay buried.</span>`,
+  choices: [
+    { text: 'Harriet arrives with an old cardboard box.', next: 'old_box' },
+  ]
+},
+
+// ─── The Box ─────────────────────────────────────────────────
+old_box: {
+  act: 'Act V  ·  Truth',
+  bg: 'bg-home',
+  title: 'Old Box',
+  art: 'old-box',
+  speaker: 'Narration',
+  text: `Harriet Sloane arrives with a dust-furred cardboard box. Calvin left it with her years ago, she explains. She always thought it should come to Elizabeth.<br><br>Inside: Harvard transcripts. Draft manuscripts. An unsent letter. A legal document.<br><br>Calvin never graduated from Harvard. A professor had stolen his dissertation — and used it to have him expelled.<br><br>But his work was real. Everything he built, he earned himself.<br><br><span class="em">Just like Elizabeth.</span>`,
+  choices: [
+    { text: 'Use these documents. Clear his name.', next: 'vindicate', flag: { vindicated: true } },
+    { text: 'Seal the box. Let the past stay in the past.', next: 'let_go', flag: { vindicated: false } },
+  ]
+},
+
+// ─── Endings ─────────────────────────────────────────────────
+vindicate: {
+  act: 'Finale',
+  bg: 'bg-lab',
+  title: 'Truth Will Out',
+  art: 'vindication',
+  speaker: 'Narration',
+  text: `The documents go to Harvard. Copies go to every newspaper willing to print the story.<br><br>Dr. Calvin R. Evans's academic honor is posthumously restored.<br><br>Academia extends a new invitation to Elizabeth Zott.<br><br>She declines.<br><br><span class="hl">"I've already found my laboratory,"</span> she tells them. <span class="hl">"It turns out it's larger than I expected."</span><br><br>She means the three million women who watch her every evening.`,
+  choices: [
+    { text: 'See ending.', next: 'END_A' },
+  ]
+},
+
+let_go: {
+  act: 'Finale',
+  bg: 'bg-warm',
+  title: 'A Legacy of Lessons',
+  art: 'sunset',
+  speaker: 'Narration',
+  text: `She places the box back on the shelf.<br><br>Six-Thirty's fur is beginning to gray, but he still rests his head on her knee every morning.<br><br>Supper at Six now outrates every prime-time program on the network.<br><br>Madeline is twelve. She's built a small laboratory in her bedroom.<br><br>Elizabeth stands in the kitchen, looking at the oak tree Calvin planted in the yard.<br><br><span class="em">She already has everything she needs.</span>`,
+  choices: [
+    { text: 'See ending.', next: 'END_B' },
+  ]
+},
+
+END_A: { __end: 'A' },
+END_B: { __end: 'B' },
+};
+
+
+// ══════════════════════════════════════════════════════════════
+// ENDINGS
+// ══════════════════════════════════════════════════════════════
+const ENDS = {
+  A: {
+    color: '#f0a800',
+    badge: 'Ending A  ·  Truth Will Out',
+    title: 'Our Names Will Not Be Erased',
+    desc: `Elizabeth cleared Calvin's name — and reclaimed her own dignity in the process.<br><br>
+She chose to stay on television. Not because she had no other options, but because three million women deserved someone who would stay.<br><br>
+Madeline grew up to become a scientist. Six-Thirty rested under the oak tree.<br><br>
+The women who first realized <span style="color:#f0a800">"I can understand what I'm doing"</span> while watching a cooking show — they changed the world in ways that were quiet, and permanent.`,
+    quote: '"Science doesn\'t belong to anyone. It belongs to everyone — if they\'re willing to learn."<br>— Elizabeth Zott'
+  },
+  B: {
+    color: '#20967a',
+    badge: 'Ending B  ·  A Legacy of Lessons',
+    title: 'Every Lesson Is an Inheritance',
+    desc: `Some truths don't need to be public to be real.<br><br>
+Elizabeth knew who Calvin was. Madeline knew her father's story. That was enough.<br><br>
+In an era when women couldn't hold a credit card in their own name, Elizabeth stood in front of a camera and used chemistry to teach three million people: <span style="color:#20967a">you have more agency than you know.</span>`,
+    quote: '"Maybe that\'s what chemistry is: understanding everything around you — and then treating it well."<br>— Elizabeth Zott'
+  }
+};
+
+
+// ══════════════════════════════════════════════════════════════
+// GAME STATE
+// ══════════════════════════════════════════════════════════════
+const S = {
+  scene: null,
+  count: 0,
+  flags: {},
+  history: [],
+  typing: false,
+  timer: null,
+};
+
+
+// ══════════════════════════════════════════════════════════════
+// ENGINE
+// ══════════════════════════════════════════════════════════════
+function startGame() {
+  document.getElementById('title-screen').style.display = 'none';
+  document.getElementById('game').style.display = 'flex';
+  goScene('start');
+}
+
+function goScene(id) {
+  const sc = SCENES[id];
+  if (!sc) { console.error('Missing scene:', id); return; }
+  if (sc.__end) { showEnding(sc.__end); return; }
+
+  S.scene = id;
+  S.count++;
+  if (sc.flag) Object.assign(S.flags, sc.flag);
+
+  // Background
+  const artEl = document.getElementById('scene-art');
+  artEl.className = sc.bg || 'bg-dark';
+
+  // ASCII art
+  const pre = document.createElement('pre');
+  pre.className = 'art-pre';
+  pre.textContent = ARTS[sc.art] || '';
+  const inner = document.getElementById('scene-art-inner');
+  inner.innerHTML = '';
+  inner.appendChild(pre);
+
+  // Labels
+  document.getElementById('act-label').textContent = sc.act || '';
+  document.getElementById('scene-title').textContent = sc.title || '';
+  document.getElementById('speaker').textContent = sc.speaker || '';
+
+  // Reset choices
+  document.getElementById('choices-area').innerHTML = '';
+
+  // Update HUD
+  updateProgress();
+  updatePath();
+  document.getElementById('scene-counter').textContent = 'Scene ' + S.count;
+
+  // Typewrite text
+  typeText(document.getElementById('narrative-text'), sc.text || '', () => {
+    renderChoices(sc.choices || []);
+  });
+}
+
+// ── Typewriter effect ──
+function typeText(el, html, done) {
+  if (S.timer) clearTimeout(S.timer);
+  S.typing = true;
+  el.innerHTML = '';
+
+  const parts = html.split('<br><br>');
+  let built = '';
+  let i = 0;
+
+  function next() {
+    if (i >= parts.length) {
+      S.typing = false;
+      if (done) done();
+      return;
+    }
+    built += (i > 0 ? '<br><br>' : '') + parts[i];
+    el.innerHTML = built;
+    el.parentElement.scrollTop = el.parentElement.scrollHeight;
+    const charCount = parts[i].replace(/<[^>]*>/g, '').length;
+    const delay = Math.min(400 + charCount * 22, 2200);
+    i++;
+    S.timer = setTimeout(next, delay);
+  }
+  next();
+}
+
+function skipTyping() {
+  if (!S.typing) return;
+  clearTimeout(S.timer);
+  S.typing = false;
+  const sc = SCENES[S.scene];
+  if (!sc) return;
+  document.getElementById('narrative-text').innerHTML = sc.text || '';
+  renderChoices(sc.choices || []);
+}
+
+// ── Render choices ──
+function renderChoices(choices) {
+  const area = document.getElementById('choices-area');
+  area.innerHTML = '';
+  if (!choices.length) return;
+  setTimeout(() => {
+    choices.forEach((c, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn fade-in';
+      btn.style.animationDelay = (idx * 0.08) + 's';
+      btn.innerHTML = `<span class="arrow">▶</span><span>${c.text}</span>`;
+      btn.onclick = () => {
+        S.history.push({ scene: S.scene, idx });
+        if (c.flag) Object.assign(S.flags, c.flag);
+        btn.style.animation = 'flash-in 0.4s ease both';
+        setTimeout(() => goScene(c.next), 320);
+      };
+      area.appendChild(btn);
+    });
+  }, 120);
+}
+
+// ── Progress bar ──
+function updateProgress() {
+  const bar = document.getElementById('progress-bar');
+  const total = 14;
+  const filled = Math.min(Math.round((S.count / 22) * total), total);
+  bar.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'pdot' + (i < filled ? ' on' : '');
+    bar.appendChild(d);
+  }
+}
+
+// ── Path label ──
+function updatePath() {
+  const lbl = document.getElementById('path-label');
+  const f = S.flags;
+  if (f.vindicated)                    { lbl.textContent = 'Justice Served';          lbl.style.color = '#f0a800'; }
+  else if (f.science && f.assertive)   { lbl.textContent = 'The Science Pioneer';     lbl.style.color = '#80cbc4'; }
+  else if (f.science)                  { lbl.textContent = "The Educator's Path";     lbl.style.color = '#20967a'; }
+  else if (f.assertive && f.independent){ lbl.textContent = 'Independent Pioneer';   lbl.style.color = '#80cbc4'; }
+  else if (f.assertive)                { lbl.textContent = 'The Resolute';            lbl.style.color = '#a8d870'; }
+  else                                 { lbl.textContent = 'Fate unfolds…';           lbl.style.color = '#4a7a4a'; }
+}
+
+// ── Show ending screen ──
+function showEnding(endId) {
+  const e = ENDS[endId];
+  if (!e) return;
+
+  const f = S.flags;
+  const pathParts = [];
+  if (f.assertive)   pathParts.push('Bold');
+  if (f.independent) pathParts.push('Independent');
+  if (f.open)        pathParts.push('Honest');
+  if (f.science)     pathParts.push('Educator');
+  if (f.truthful)    pathParts.push('Truthful');
+  if (f.vindicated)  pathParts.push('Justice');
+  const path = pathParts.join(' · ') || 'Free path';
+
+  const game = document.getElementById('game');
+  game.innerHTML = `
+    <div id="header">
+      <span class="game-title">CHEMISTRY</span>
+      <span style="font-family:'Press Start 2P',monospace;font-size:7px;color:var(--dim)">ENDING UNLOCKED</span>
+    </div>
+    <div id="scene-art" class="bg-dark"
+         style="height:110px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div style="font-family:'Press Start 2P',monospace;font-size:clamp(14px,3vw,20px);
+                  color:${e.color};text-shadow:0 0 24px ${e.color};letter-spacing:5px;text-align:center">
+        ★ ENDING ★
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;align-items:center;gap:0">
+      <div style="font-family:'Press Start 2P',monospace;font-size:8px;
+                  color:${e.color};border:2px solid ${e.color};padding:7px 16px;
+                  letter-spacing:1px;margin-bottom:12px">${e.badge}</div>
+      <div style="font-family:'Press Start 2P',monospace;font-size:clamp(9px,1.8vw,13px);
+                  color:#fff;line-height:1.9;margin:8px 0 14px;text-align:center">${e.title}</div>
+      <div style="font-size:19px;line-height:1.7;color:var(--text);max-width:580px;
+                  margin:0 auto 14px;text-align:left">${e.desc}</div>
+      <div style="font-size:17px;font-style:italic;border-left:3px solid ${e.color};
+                  color:${e.color};padding:8px 14px;text-align:left;
+                  max-width:560px;width:100%;margin:6px auto 14px;line-height:1.7">${e.quote}</div>
+      <div style="font-size:15px;color:#3a6a3a;line-height:2;margin-bottom:14px">
+        Choices made: ${S.history.length} &nbsp;·&nbsp; Path: ${path}
+      </div>
+      <button onclick="location.reload()"
+              style="font-family:'Press Start 2P',monospace;font-size:8px;
+                     background:transparent;border:2px solid var(--border);
+                     color:var(--text);padding:12px 22px;cursor:pointer;
+                     letter-spacing:2px;margin-top:6px;
+                     transition:border-color 0.15s,color 0.15s"
+              onmouseover="this.style.borderColor='${e.color}';this.style.color='${e.color}'"
+              onmouseout="this.style.borderColor='';this.style.color=''">
+        ↺ Play Again  ·  Discover Other Endings
+      </button>
+    </div>
+    <div id="status-bar">
+      <span>Game Over</span>
+      <span style="color:${e.color}">${e.badge}</span>
+    </div>
+  `;
+}
+
+// ── Click anywhere to skip typewriter ──
+document.addEventListener('click', e => {
+  if (e.target.closest('.choice-btn')) return;
+  skipTyping();
+});
+
+// ── Title fade-in on load ──
+window.addEventListener('load', () => {
+  const ts = document.getElementById('title-screen');
+  ts.style.opacity = '0';
+  ts.style.transition = 'opacity 1.2s';
+  setTimeout(() => { ts.style.opacity = '1'; }, 80);
+});
+</script>
+</body>
+</html>
