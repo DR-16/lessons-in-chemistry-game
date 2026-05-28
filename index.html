@@ -337,23 +337,60 @@ hr.title-divider {
 /* ── Red death veil ── */
 #red-veil {
   position: fixed; inset: 0;
-  background: rgba(140, 8, 8, 0);
+  background: rgba(80, 0, 0, 0);
   pointer-events: none;
   z-index: 902;
-  transition: background 0.7s ease, box-shadow 0.7s ease;
-  box-shadow: inset 0 0 0px rgba(255,0,0,0);
+  transition: background 1.2s ease;
 }
 #red-veil.on {
-  background: rgba(180, 12, 12, 0.52);
-  box-shadow: inset 0 0 120px rgba(255,0,0,0.5),
-              inset 0 0 40px rgba(200,0,0,0.6);
+  background: rgba(60, 0, 0, 0.18);
 }
-#red-veil.pulse {
-  animation: red-pulse 1.8s ease-in-out 2s 3;
+
+/* ── Blood drips ── */
+@keyframes bleed-grow {
+  0%   { transform: scaleY(0);    opacity: 0;   }
+  3%   { transform: scaleY(0.04); opacity: 1;   }
+  40%  { transform: scaleY(1);    opacity: 1;   }
+  78%  { transform: scaleY(1);    opacity: 0.96;}
+  100% { transform: scaleY(1);    opacity: 0;   }
 }
-@keyframes red-pulse {
-  0%,100% { box-shadow: inset 0 0 120px rgba(255,0,0,0.5), inset 0 0 40px rgba(200,0,0,0.6); }
-  50%      { box-shadow: inset 0 0 200px rgba(255,0,0,0.8), inset 0 0 80px rgba(255,0,0,0.9); }
+@keyframes blob-drop {
+  0%   { opacity: 0;   }
+  3%   { opacity: 1;   }
+  40%  { opacity: 0.98;}
+  78%  { opacity: 0.94;}
+  100% { opacity: 0;   }
+}
+.blood-drip {
+  position: absolute;
+  background: linear-gradient(180deg,
+    rgba(210, 15, 15, 0.97) 0%,
+    rgba(180, 8, 8, 0.93) 55%,
+    rgba(220, 20, 20, 0.98) 100%
+  );
+  border-radius: 2px 2px 4px 4px;
+  box-shadow: 0 0 6px rgba(255, 30, 30, 0.5), 0 0 14px rgba(200, 0, 0, 0.3);
+  pointer-events: none;
+  transform-origin: 50% 0%;
+  transform: scaleY(0);
+  opacity: 0;
+  animation-name: bleed-grow;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+.blood-blob {
+  position: absolute;
+  background: radial-gradient(circle at 38% 32%,
+    rgba(240, 30, 30, 0.99),
+    rgba(180, 10, 10, 0.92)
+  );
+  box-shadow: 0 0 8px rgba(255, 40, 40, 0.6), 0 0 18px rgba(200, 0, 0, 0.35);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation-name: blob-drop;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
 }
 
 /* ── Flying papers ── */
@@ -1459,16 +1496,42 @@ function effectPapers() {
   }, 550);
 }
 
-// ── Red screen ──
+// ── Blood drip effect ──
 function effectRedOn() {
-  const veil = document.getElementById('red-veil');
-  veil.classList.add('on');
-  setTimeout(() => veil.classList.add('pulse'), 2500);
+  document.getElementById('red-veil').classList.add('on');
+
+  const layer = document.getElementById('fx-layer');
+  const game  = document.getElementById('game');
+  const gRect = game.getBoundingClientRect();
+
+  // #fx-layer is position:fixed inset:0, so absolute children use viewport coords
+  for (let i = 0; i < 20; i++) {
+    const x       = gRect.left + Math.random() * gRect.width;
+    const w       = 8 + Math.random() * 16;
+    const h       = gRect.height * (0.32 + Math.random() * 0.50);
+    const dur     = (9000 + Math.random() * 5000) + 'ms';
+    const delay   = (i * 200 + Math.random() * 300) + 'ms';
+
+    const drip = document.createElement('div');
+    drip.className = 'blood-drip';
+    drip.style.cssText = `width:${w}px; height:${h}px; left:${x}px; top:${gRect.top}px;
+      animation-duration:${dur}; animation-delay:${delay};`;
+    layer.appendChild(drip);
+
+    const bw   = w * 1.5 + 4;
+    const blob = document.createElement('div');
+    blob.className = 'blood-blob';
+    // blob sits at bottom of drip once fully grown; CSS @keyframes handles opacity
+    blob.style.cssText = `width:${bw}px; height:${bw}px;
+      left:${x + w/2 - bw/2}px; top:${gRect.top + h - bw * 0.4}px;
+      animation-duration:${dur}; animation-delay:${delay};`;
+    layer.appendChild(blob);
+  }
 }
 
 function effectRedOff() {
-  const veil = document.getElementById('red-veil');
-  veil.classList.remove('on', 'pulse');
+  document.getElementById('red-veil').classList.remove('on');
+  // blood drip elements in fx-layer are cleared by goScene on scene transition
 }
 
 // ── Tears ──
